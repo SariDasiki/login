@@ -1,6 +1,7 @@
 class TasksController < ApplicationController
-  before_action :set_task, only: %i[ show edit update destroy ]
-
+  # before_action :set_task, only: %i[ show edit update destroy ]
+  skip_before_action :login_required, only: [:new, :create]
+  before_action :correct_user, only: [:show, :edit]
   def index
     @tasks = Task.all
   end
@@ -10,15 +11,16 @@ class TasksController < ApplicationController
   end
 
   def create
-    @task = Task.new(task_params)
+    @task = current_user.tasks.build(task_params)
     if @task.save
-      redirect_to tasks_path, notice: t('.created')
+      redirect_to tasks_path
     else
       render :new
     end
   end
 
   def show
+    @task = Task.find(params[:id])
   end
 
   def edit
